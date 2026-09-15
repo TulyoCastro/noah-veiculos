@@ -12,7 +12,7 @@ const localPhotos = [
   'WhatsApp Image 2026-09-03 at 16.35.27 (2).jpeg', 'WhatsApp Image 2026-09-03 at 16.35.27.jpeg',
   'WhatsApp Image 2026-09-03 at 16.35.28 (1).jpeg', 'WhatsApp Image 2026-09-03 at 16.35.28 (2).jpeg',
   'WhatsApp Image 2026-09-03 at 16.35.28.jpeg', 'WhatsApp Image 2026-09-03 at 16.35.29.jpeg'
-].map(encodeURI);
+].map(photo => encodeURI(`/Onix/${photo}`));
 const sampleVehicle = { id: 'sample-onix', name: 'Onix RS Hatch Black 1.0 Turbo', year: '2023/2024', color: 'Preto', engine: '1.0 Turbo', km: '34.500 km', fuel: 'Flex', price: 89900, items: 'Ar Condicionado, Alarme, Trava Elétrica, Vidro Elétrico, Bancos em Couro, Freio ABS, Espelhos Elétricos, Conta-Giro, Película Protetora, Turbo, Retrovisor Elétrico, Computador de Bordo, Porta Malas Elétrico, Desembaçador Traseiro, Controle de Tração, Rodas de Liga Leve, Controle de Som no Volante, Direção Elétrica, Air Bag, Sensor de Estacionamento Traseiro, Volante Escamoteável, Câmera de Ré, Botão Start/Stop, Bluetooth, USB, Controle de Estabilidade, Câmbio Automático', image: localPhotos[4], photos: localPhotos };
 const $ = (selector) => document.querySelector(selector);
 const galleryStyle = document.createElement('style'); galleryStyle.textContent = '.vehicle-thumbs{display:flex;gap:5px;padding:8px 12px 0;overflow-x:auto}.vehicle-thumb{flex:0 0 42px;height:32px;border:2px solid transparent;border-radius:4px;background:center/cover no-repeat;opacity:.65;cursor:pointer}.vehicle-thumb.selected{border-color:#d3e83c;opacity:1}.photo-count{position:absolute;right:13px;top:13px;background:#fff;padding:7px 9px;border-radius:5px;font-size:10px;color:#1c594b;font-weight:700}'; document.head.appendChild(galleryStyle);
