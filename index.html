@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noah Veículos | Catálogo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-art">
+      <div class="brand-mark">N</div>
+      <p class="eyebrow">NOAH VEÍCULOS</p>
+      <h1>Seu estoque,<br><em>em movimento.</em></h1>
+      <p class="login-caption">Uma forma mais simples e elegante de apresentar os carros da sua garagem.</p>
+      <div class="login-road"></div>
+    </div>
+    <form id="loginForm" class="login-card">
+      <span class="mini-label">ÁREA RESTRITA</span>
+      <h2>Bem-vindo de volta</h2>
+      <p class="muted">Entre para gerenciar seu catálogo.</p>
+      <label>E-mail ou usuário<input id="username" required autocomplete="username" placeholder="admin" /></label>
+      <label>Senha<input id="password" required type="password" autocomplete="current-password" placeholder="••••••••" /></label>
+      <button class="primary-button" type="submit">Entrar no painel <span>→</span></button>
+      <p id="loginError" class="form-error" role="alert"></p>
+      <p class="demo-hint">Acesso inicial: <strong>admin</strong> / <strong>admin123</strong></p>
+    </form>
+  </div>
+
+  <main id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><div class="brand-mark small">N</div><div><strong>NOAH</strong><span>VEÍCULOS</span></div></div>
+      <nav><button class="nav-item active"><span>▦</span> Catálogo</button><button class="nav-item"><span>◌</span> Leads <i>em breve</i></button></nav>
+      <div class="sidebar-bottom"><div class="profile"><div class="avatar">NV</div><div><strong>Administrador</strong><span>Conta principal</span></div></div><button id="logoutButton" class="logout">Sair da conta ↗</button></div>
+    </aside>
+
+    <section class="content">
+      <header class="topbar"><div><span class="breadcrumb">PAINEL / CATÁLOGO</span><h2>Seus veículos</h2></div><div class="top-actions"><span class="status"><b></b> Catálogo ativo</span><button id="openModalButton" class="primary-button compact">+ Adicionar veículo</button></div></header>
+      <div class="stats"><div class="stat-card"><span>VEÍCULOS ATIVOS</span><strong id="vehicleCount">0</strong><small>no catálogo</small></div><div class="stat-card"><span>VALOR DO ESTOQUE</span><strong id="stockValue">R$ 0</strong><small>valor anunciado</small></div><div class="stat-card highlight"><span>COMPARTILHAMENTOS</span><strong id="shareCount">0</strong><small>via WhatsApp</small></div></div>
+      <div class="catalog-heading"><div><h3>Catálogo de veículos</h3><p>Gerencie os carros disponíveis para seus clientes.</p></div><label class="search"><span>⌕</span><input id="searchInput" placeholder="Buscar veículo..." /></label></div>
+      <div id="vehicleGrid" class="vehicle-grid"></div>
+      <div id="emptyState" class="empty-state hidden"><div>⌁</div><h3>Nenhum veículo encontrado</h3><p>Cadastre um carro para começar seu catálogo.</p><button class="secondary-button" id="emptyAddButton">Adicionar primeiro veículo</button></div>
+    </section>
+  </main>
+  <main id="publicVehicle" class="public-vehicle hidden"></main>
+  <div id="imageViewer" class="image-viewer hidden"><button id="viewerClose" class="viewer-close" aria-label="Fechar">×</button><button id="viewerPrevious" class="viewer-arrow viewer-previous" aria-label="Foto anterior">‹</button><img id="viewerImage" alt="Foto ampliada"><button id="viewerNext" class="viewer-arrow viewer-next" aria-label="Próxima foto">›</button><span id="viewerCounter" class="viewer-counter"></span></div>
+
+  <div id="vehicleModal" class="modal hidden"><div class="modal-backdrop"></div><form id="vehicleForm" class="modal-card"><div class="modal-header"><div><span class="mini-label">NOVO ANÚNCIO</span><h2>Adicionar veículo</h2></div><button type="button" class="close-button" id="closeModalButton">×</button></div><div class="form-grid"><label class="photo-field"><span>Foto principal</span><div id="imagePreview" class="image-preview"><div><strong>+</strong><small>Clique para escolher<br>uma imagem</small></div></div><input id="vehicleImage" type="file" accept="image/*" hidden /></label><div class="fields"><label>Nome do veículo<input id="vehicleName" required placeholder="Ex.: Honda Civic Touring" /></label><div class="two-fields"><label>Ano<input id="vehicleYear" required placeholder="2023/2024" /></label><label>Cor<input id="vehicleColor" required placeholder="Preto" /></label></div><div class="two-fields"><label>Motor<input id="vehicleEngine" placeholder="1.0 Turbo" /></label><label>Quilometragem<input id="vehicleKm" placeholder="34.500 km" /></label></div><div class="two-fields"><label>Combustível<select id="vehicleFuel"><option>Flex</option><option>Gasolina</option><option>Diesel</option><option>Elétrico</option><option>Híbrido</option></select></label><label>Preço<input id="vehiclePrice" required placeholder="89900" inputmode="numeric" /></label></div></div></div><label>Itens e diferenciais<textarea id="vehicleItems" rows="3" placeholder="Ar condicionado, câmera de ré, bancos em couro..."></textarea></label><div class="modal-footer"><button type="button" class="secondary-button" id="cancelModalButton">Cancelar</button><button class="primary-button" type="submit">Salvar veículo <span>→</span></button></div></form></div>
+  <script src="app.js"></script>
+</body>
+</html>
