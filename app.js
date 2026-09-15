@@ -1,3 +1,8 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+  ? createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
+  : null;
 const demoImage = 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=900&q=85';
 const localPhotos = [
   'WhatsApp Image 2026-09-03 at 16.35.24 (1).jpeg', 'WhatsApp Image 2026-09-03 at 16.35.24.jpeg',
@@ -23,6 +28,24 @@ if (savedSample && (!savedSample.photos || savedSample.image === demoImage)) { s
 
 function money(value) { return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 function saveVehicles() { localStorage.setItem('noahVehicles', JSON.stringify(vehicles)); }
+async function loadVehicles() {
+  if (!supabase) return;
+  const { data, error } = await supabase.from('vehicles').select('*').order('created_at', { ascending: false });
+  if (error || !data?.length) return;
+  vehicles = data.map(vehicle => ({
+    id: vehicle.id,
+    name: vehicle.title,
+    year: String(vehicle.year || ''),
+    color: vehicle.color || '',
+    engine: vehicle.engine || '',
+    km: vehicle.mileage ? `${vehicle.mileage.toLocaleString('pt-BR')} km` : '',
+    fuel: vehicle.fuel || 'Flex',
+    price: vehicle.price || 0,
+    items: vehicle.items || vehicle.description || '',
+    image: vehicle.image_url || demoImage,
+    photos: vehicle.image_url ? [vehicle.image_url] : []
+  }));
+}
 function render() {
   const query = $('#searchInput').value.toLowerCase().trim();
   const visible = vehicles.filter(vehicle => `${vehicle.name} ${vehicle.year} ${vehicle.color}`.toLowerCase().includes(query));
@@ -47,8 +70,8 @@ function openModal(vehicle = null) { editingId = vehicle?.id || null; selectedIm
 function closeModal() { editingId = null; selectedImages = []; $('#vehicleModal').classList.add('hidden'); $('#vehicleForm').reset(); selectedImage = ''; $('#imagePreview').style.backgroundImage = ''; $('#imagePreview').querySelector('div').classList.remove('hidden'); $('.modal-card h2').textContent = 'Adicionar veículo'; $('.modal-card .mini-label').textContent = 'NOVO ANÚNCIO'; }
 async function shareVehicle(vehicle) { const text = `Olá! Tenho interesse neste veículo da Noah Veículos:\n\n*${vehicle.name}*\nAno: ${vehicle.year}\nCor: ${vehicle.color}\nMotor: ${vehicle.engine}\nKm: ${vehicle.km}\nCombustível: ${vehicle.fuel}\n\nItens: ${vehicle.items}\n\n*Valor: ${money(vehicle.price)}*`; shares++; localStorage.setItem('noahShares', shares); render(); const photos = vehicle.photos || (vehicle.image ? [vehicle.image] : []); let files = []; try { files = await Promise.all(photos.map(async (photo, index) => { const response = await fetch(photo); if (!response.ok) throw new Error('Não foi possível carregar a foto.'); const blob = await response.blob(); return new File([blob], `${vehicle.name}-${index + 1}.jpg`, { type: blob.type || 'image/jpeg' }); })); } catch (error) { files = []; } if (files.length && navigator.share && navigator.canShare && navigator.canShare({ files })) { try { await navigator.share({ text, files }); return; } catch (error) { if (error.name === 'AbortError') return; } } files.forEach(file => { const download = document.createElement('a'); download.href = URL.createObjectURL(file); download.download = file.name; download.click(); URL.revokeObjectURL(download.href); }); window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); if (files.length) alert(`As ${files.length} fotos foram baixadas. No WhatsApp, clique no clipe, selecione todas elas e envie junto com a mensagem.`); }
 
-$('#loginForm').addEventListener('submit', event => { event.preventDefault(); const valid = ($('#username').value === 'admin' || $('#username').value === 'admin@noahveiculos.com') && $('#password').value === 'admin123'; if (!valid) { $('#loginError').textContent = 'Usuário ou senha incorretos.'; return; } sessionStorage.setItem('noahLoggedIn', 'true'); $('#loginScreen').classList.add('hidden'); $('#app').classList.remove('hidden'); render(); });
-$('#logoutButton').addEventListener('click', () => { sessionStorage.removeItem('noahLoggedIn'); location.reload(); });
+$('#loginForm').addEventListener('submit', async event => { event.preventDefault(); $('#loginError').textContent = ''; if (!supabase) { $('#loginError').textContent = 'Configuração do Supabase ausente.'; return; } const { error } = await supabase.auth.signInWithPassword({ email: $('#username').value.trim(), password: $('#password').value }); if (error) { $('#loginError').textContent = 'E-mail ou senha incorretos.'; return; } sessionStorage.setItem('noahLoggedIn', 'true'); await loadVehicles(); $('#loginScreen').classList.add('hidden'); $('#app').classList.remove('hidden'); render(); });
+$('#logoutButton').addEventListener('click', async () => { await supabase?.auth.signOut(); sessionStorage.removeItem('noahLoggedIn'); location.reload(); });
 $('#openModalButton').addEventListener('click', openModal); $('#emptyAddButton').addEventListener('click', openModal); $('#closeModalButton').addEventListener('click', closeModal); $('#cancelModalButton').addEventListener('click', closeModal); $('#searchInput').addEventListener('input', render);
 $('#imagePreview').addEventListener('click', () => $('#vehicleImage').click());
 $('#vehicleImage').setAttribute('multiple', 'multiple');
@@ -59,4 +82,4 @@ $('#vehicleGrid').addEventListener('click', event => { const shareId = event.tar
 $('#viewerClose').addEventListener('click', closeImageViewer); $('#viewerPrevious').addEventListener('click', () => moveImageViewer(-1)); $('#viewerNext').addEventListener('click', () => moveImageViewer(1)); $('#imageViewer').addEventListener('click', event => { if (event.target.id === 'imageViewer') closeImageViewer(); }); document.addEventListener('keydown', event => { if ($('#imageViewer').classList.contains('hidden')) return; if (event.key === 'ArrowLeft') moveImageViewer(-1); if (event.key === 'ArrowRight') moveImageViewer(1); if (event.key === 'Escape') closeImageViewer(); });
 $('#publicVehicle').addEventListener('click', event => { if (event.target.tagName !== 'IMG') return; const publicId = new URLSearchParams(location.hash.replace('#', '?')).get('carro'); const vehicle = vehicles.find(item => item.id === publicId); openImageViewer(vehicle?.photos || [event.target.src]); });
 const publicId = new URLSearchParams(location.hash.replace('#', '?')).get('carro');
-if (publicId) showPublicVehicle(vehicles.find(vehicle => vehicle.id === publicId)); else if (sessionStorage.getItem('noahLoggedIn') === 'true') { $('#loginScreen').classList.add('hidden'); $('#app').classList.remove('hidden'); render(); }
+if (publicId) showPublicVehicle(vehicles.find(vehicle => vehicle.id === publicId)); else if (supabase) { supabase.auth.getSession().then(async ({ data }) => { if (!data.session) return; await loadVehicles(); $('#loginScreen').classList.add('hidden'); $('#app').classList.remove('hidden'); render(); }); }
